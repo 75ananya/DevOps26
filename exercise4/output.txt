@@ -1,0 +1,265 @@
+annieunix@DESKTOP-UBU709H:~/devops/exercise4$ docker build -t flask-api .
+[+] Building 25.6s (11/11) FINISHED                                  docker:default
+ => [internal] load build definition from Dockerfile                           0.1s
+ => => transferring dockerfile: 498B                                           0.1s
+ => [internal] load metadata for docker.io/library/python:3.9-slim             2.2s
+ => [auth] library/python:pull token for registry-1.docker.io                  0.0s
+ => [internal] load .dockerignore                                              0.1s
+ => => transferring context: 2B                                                0.0s
+ => [1/5] FROM docker.io/library/python:3.9-slim@sha256:2d97f6910b16bd338d306  0.1s
+ => => resolve docker.io/library/python:3.9-slim@sha256:2d97f6910b16bd338d306  0.1s
+ => [internal] load build context                                              0.0s
+ => => transferring context: 101B                                              0.0s
+ => CACHED [2/5] WORKDIR /app                                                  0.0s
+ => [3/5] COPY requirements.txt .                                              0.1s
+ => [4/5] COPY app.py .                                                        0.2s
+ => [5/5] RUN pip install --no-cache-dir -r requirements.txt                  18.1s
+ => exporting to image                                                         4.1s
+ => => exporting layers                                                        2.4s
+ => => exporting manifest sha256:9551cde5ac357a346d8bc2a55af09c523d9f2fa2766e  0.1s
+ => => exporting config sha256:e062d22d0ddb16b586b81d5c1ca42e92749049bb486a8d  0.1s
+ => => exporting attestation manifest sha256:32d6159d4f28cf3d1ea8c79b8c0f130c  0.1s
+ => => exporting manifest list sha256:b604420ea7572710015dc8a5efca8f9be982af3  0.1s
+ => => naming to docker.io/library/flask-api:latest                            0.0s
+ => => unpacking to docker.io/library/flask-api:latest                         1.1s
+annieunix@DESKTOP-UBU709H:~/devops/exercise4$ docker run -d --name mysql --net=my-bridge-net mysql:latest
+docker: Error response from daemon: Conflict. The container name "/mysql" is already in use by container "1ba68f8878056e5fa26482e9edd64bb1d0db8b1e22bc8d545b88fb462ab0ec0e". You have to remove (or rename) that container to be able to reuse that name.
+
+Run 'docker run --help' for more information
+annieunix@DESKTOP-UBU709H:~/devops/exercise4$   docker run -d --name redis --net=my-bridge-net redis:latest
+docker: Error response from daemon: Conflict. The container name "/redis" is already in use by container "21486f36166ee7ce9c68c359281acd2563b23be782f27930f7f22b2bc21aab8b". You have to remove (or rename) that container to be able to reuse that name.
+
+Run 'docker run --help' for more information
+annieunix@DESKTOP-UBU709H:~/devops/exercise4$ docker run -d --name flask --net=my-bridge-net -p 5001:5001 flask-api
+docker: Error response from daemon: Conflict. The container name "/flask" is already in use by container "e19aeaa5046b5e17fb918a21e8e0cccf2bf0c036532abeaadd4c85ddd8c65d50". You have to remove (or rename) that container to be able to reuse that name.
+
+Run 'docker run --help' for more information
+annieunix@DESKTOP-UBU709H:~/devops/exercise4$ docker rm -f redis flask
+redis
+flask
+annieunix@DESKTOP-UBU709H:~/devops/exercise4$ docker run -d --name redis --net=my-bridge-net redis:latest
+b89944807b4b92afa9a23af9ce3a753cac04285e2b44c88d6b03509223f50f16
+annieunix@DESKTOP-UBU709H:~/devops/exercise4$ docker run -d --name flask --net=my-bridge-net -p 5001:5001 flask-api
+b6310eb1167fdfb6af39ca98e03df407b5042ce784a18ca356d386a89a9cd056
+annieunix@DESKTOP-UBU709H:~/devops/exercise4$ docker ps
+CONTAINER ID   IMAGE                                 COMMAND                  CREATED          STATUS          PORTS                                                                                                                                  NAMES
+b6310eb1167f   flask-api                             "python app.py"          7 seconds ago    Up 6 seconds    0.0.0.0:5001->5001/tcp, [::]:5001->5001/tcp                                                                                            flask
+b89944807b4b   redis:latest                          "docker-entrypoint.s…"   15 seconds ago   Up 14 seconds   6379/tcp                                                                                                                               redis
+989f27b55343   gcr.io/k8s-minikube/kicbase:v0.0.51   "/usr/local/bin/entr…"   3 days ago       Up 3 days       127.0.0.1:46585->22/tcp, 127.0.0.1:46255->2376/tcp, 127.0.0.1:46245->5000/tcp, 127.0.0.1:46377->8443/tcp, 127.0.0.1:46565->32443/tcp   minikube
+annieunix@DESKTOP-UBU709H:~/devops/exercise4$ docker exec -it flask bash
+root@b6310eb1167f:/app# ping mysql
+bash: ping: command not found
+root@b6310eb1167f:/app# ping mysql
+bash: ping: command not found
+root@b6310eb1167f:/app# apt-get update && apt-get install -y iputils-ping
+Get:1 http://deb.debian.org/debian trixie InRelease [140 kB]
+Get:2 http://deb.debian.org/debian trixie-updates InRelease [47.3 kB]
+Get:3 http://deb.debian.org/debian-security trixie-security InRelease [43.4 kB]
+Get:4 http://deb.debian.org/debian trixie/main amd64 Packages [9678 kB]
+Get:5 http://deb.debian.org/debian trixie-updates/main amd64 Packages [720 B]
+Get:6 http://deb.debian.org/debian-security trixie-security/main amd64 Packages [269 kB]
+Fetched 10.2 MB in 4s (2540 kB/s)                    
+Reading package lists... Done
+N: Repository 'http://deb.debian.org/debian trixie InRelease' changed its 'Version' value from '13.1' to '13.7'
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following additional packages will be installed:
+  libidn2-0 libunistring5 linux-sysctl-defaults
+The following NEW packages will be installed:
+  iputils-ping libidn2-0 libunistring5 linux-sysctl-defaults
+0 upgraded, 4 newly installed, 0 to remove and 31 not upgraded.
+Need to get 643 kB of archives.
+After this operation, 2810 kB of additional disk space will be used.
+Get:1 http://deb.debian.org/debian trixie/main amd64 libunistring5 amd64 1.3-2 [477 kB]
+Get:2 http://deb.debian.org/debian trixie/main amd64 libidn2-0 amd64 2.3.8-2 [109 kB]
+Get:3 http://deb.debian.org/debian trixie/main amd64 iputils-ping amd64 3:20240905-3 [51.2 kB]
+Get:4 http://deb.debian.org/debian trixie/main amd64 linux-sysctl-defaults all 4.12.1 [5724 B]
+Fetched 643 kB in 0s (2735 kB/s)               
+debconf: unable to initialize frontend: Dialog
+debconf: (No usable dialog-like program is installed, so the dialog based frontend cannot be used. at /usr/share/perl5/Debconf/FrontEnd/Dialog.pm line 79, <STDIN> line 4.)
+debconf: falling back to frontend: Readline
+debconf: unable to initialize frontend: Readline
+debconf: (Can't locate Term/ReadLine.pm in @INC (you may need to install the Term::ReadLine module) (@INC entries checked: /etc/perl /usr/local/lib/x86_64-linux-gnu/perl/5.40.1 /usr/local/share/perl/5.40.1 /usr/lib/x86_64-linux-gnu/perl5/5.40 /usr/share/perl5 /usr/lib/x86_64-linux-gnu/perl-base /usr/lib/x86_64-linux-gnu/perl/5.40 /usr/share/perl/5.40 /usr/local/lib/site_perl) at /usr/share/perl5/Debconf/FrontEnd/Readline.pm line 8, <STDIN> line 4.)
+debconf: falling back to frontend: Teletype
+Selecting previously unselected package libunistring5:amd64.
+(Reading database ... 5644 files and directories currently installed.)
+Preparing to unpack .../libunistring5_1.3-2_amd64.deb ...
+Unpacking libunistring5:amd64 (1.3-2) ...
+Selecting previously unselected package libidn2-0:amd64.
+Preparing to unpack .../libidn2-0_2.3.8-2_amd64.deb ...
+Unpacking libidn2-0:amd64 (2.3.8-2) ...
+Selecting previously unselected package iputils-ping.
+Preparing to unpack .../iputils-ping_3%3a20240905-3_amd64.deb ...
+Unpacking iputils-ping (3:20240905-3) ...
+Selecting previously unselected package linux-sysctl-defaults.
+Preparing to unpack .../linux-sysctl-defaults_4.12.1_all.deb ...
+Unpacking linux-sysctl-defaults (4.12.1) ...
+Setting up linux-sysctl-defaults (4.12.1) ...
+Setting up libunistring5:amd64 (1.3-2) ...
+Setting up libidn2-0:amd64 (2.3.8-2) ...
+Setting up iputils-ping (3:20240905-3) ...
+Processing triggers for libc-bin (2.41-12) ...
+root@b6310eb1167f:/app# ping -c 3 mysql
+ping: mysql: Name or service not known
+root@b6310eb1167f:/app# ping sql
+ping: sql: Name or service not known
+root@b6310eb1167f:/app# ping redis
+PING redis (172.18.0.2) 56(84) bytes of data.
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=1 ttl=64 time=2.78 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=2 ttl=64 time=0.103 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=3 ttl=64 time=0.086 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=4 ttl=64 time=0.213 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=5 ttl=64 time=0.405 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=6 ttl=64 time=0.180 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=7 ttl=64 time=0.083 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=8 ttl=64 time=0.242 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=9 ttl=64 time=0.326 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=10 ttl=64 time=0.184 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=11 ttl=64 time=0.201 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=12 ttl=64 time=0.062 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=13 ttl=64 time=0.202 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=14 ttl=64 time=0.098 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=15 ttl=64 time=0.081 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=16 ttl=64 time=0.122 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=17 ttl=64 time=0.211 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=18 ttl=64 time=0.099 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=19 ttl=64 time=0.181 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=20 ttl=64 time=0.084 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=21 ttl=64 time=0.158 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=22 ttl=64 time=0.116 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=23 ttl=64 time=0.156 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=24 ttl=64 time=0.064 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=25 ttl=64 time=0.126 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=26 ttl=64 time=0.088 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=27 ttl=64 time=0.163 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=28 ttl=64 time=0.122 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=29 ttl=64 time=0.175 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=30 ttl=64 time=0.092 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=31 ttl=64 time=0.096 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=32 ttl=64 time=0.118 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=33 ttl=64 time=0.210 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=34 ttl=64 time=0.099 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=35 ttl=64 time=0.239 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=36 ttl=64 time=0.109 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=37 ttl=64 time=0.311 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=38 ttl=64 time=0.099 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=39 ttl=64 time=0.154 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=40 ttl=64 time=0.149 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=41 ttl=64 time=0.288 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=42 ttl=64 time=0.097 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=43 ttl=64 time=0.143 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=44 ttl=64 time=0.176 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=45 ttl=64 time=0.221 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=46 ttl=64 time=0.099 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=47 ttl=64 time=0.103 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=48 ttl=64 time=0.206 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=49 ttl=64 time=0.156 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=50 ttl=64 time=0.179 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=51 ttl=64 time=0.166 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=52 ttl=64 time=0.082 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=53 ttl=64 time=0.158 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=54 ttl=64 time=0.262 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=55 ttl=64 time=0.129 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=56 ttl=64 time=0.083 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=57 ttl=64 time=0.149 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=58 ttl=64 time=0.112 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=59 ttl=64 time=0.341 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=60 ttl=64 time=0.082 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=61 ttl=64 time=0.181 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=62 ttl=64 time=0.195 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=63 ttl=64 time=0.170 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=64 ttl=64 time=0.333 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=65 ttl=64 time=0.069 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=66 ttl=64 time=0.201 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=67 ttl=64 time=0.176 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=68 ttl=64 time=0.183 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=69 ttl=64 time=0.168 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=70 ttl=64 time=0.159 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=71 ttl=64 time=0.150 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=72 ttl=64 time=0.228 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=73 ttl=64 time=0.795 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=74 ttl=64 time=0.257 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=75 ttl=64 time=0.163 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=76 ttl=64 time=0.169 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=77 ttl=64 time=0.111 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=78 ttl=64 time=0.082 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=79 ttl=64 time=0.107 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=80 ttl=64 time=0.236 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=81 ttl=64 time=0.214 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=82 ttl=64 time=0.169 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=83 ttl=64 time=0.090 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=84 ttl=64 time=0.160 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=85 ttl=64 time=0.092 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=86 ttl=64 time=0.111 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=87 ttl=64 time=0.446 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=88 ttl=64 time=0.078 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=89 ttl=64 time=0.224 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=90 ttl=64 time=0.099 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=91 ttl=64 time=0.094 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=92 ttl=64 time=0.209 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=93 ttl=64 time=0.193 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=94 ttl=64 time=0.200 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=95 ttl=64 time=0.174 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=96 ttl=64 time=0.072 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=97 ttl=64 time=0.121 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=98 ttl=64 time=0.117 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=99 ttl=64 time=0.126 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=100 ttl=64 time=0.065 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=101 ttl=64 time=0.191 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=102 ttl=64 time=0.204 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=103 ttl=64 time=0.088 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=104 ttl=64 time=0.200 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=105 ttl=64 time=0.214 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=106 ttl=64 time=0.184 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=107 ttl=64 time=0.174 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=108 ttl=64 time=0.092 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=109 ttl=64 time=0.135 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=110 ttl=64 time=0.206 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=111 ttl=64 time=0.106 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=112 ttl=64 time=0.169 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=113 ttl=64 time=0.212 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=114 ttl=64 time=0.165 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=115 ttl=64 time=0.192 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=116 ttl=64 time=0.152 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=117 ttl=64 time=0.143 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=118 ttl=64 time=0.070 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=119 ttl=64 time=0.130 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=120 ttl=64 time=0.206 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=121 ttl=64 time=0.101 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=122 ttl=64 time=0.206 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=123 ttl=64 time=0.191 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=124 ttl=64 time=0.150 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=125 ttl=64 time=0.222 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=126 ttl=64 time=0.313 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=127 ttl=64 time=0.091 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=128 ttl=64 time=0.202 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=129 ttl=64 time=0.100 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=130 ttl=64 time=0.226 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=131 ttl=64 time=0.122 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=132 ttl=64 time=0.093 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=133 ttl=64 time=0.092 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=134 ttl=64 time=0.178 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=135 ttl=64 time=0.192 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=136 ttl=64 time=0.167 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=137 ttl=64 time=0.097 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=138 ttl=64 time=0.142 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=139 ttl=64 time=0.070 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=140 ttl=64 time=0.077 ms
+64 bytes from redis.my-bridge-net (172.18.0.2): icmp_seq=141 ttl=64 time=0.136 ms
+^C
+--- redis ping statistics ---
+141 packets transmitted, 141 received, 0% packet loss, time 158515ms
+rtt min/avg/max/mdev = 0.062/0.181/2.775/0.235 ms
+root@b6310eb1167f:/app# exit
+exit
+annieunix@DESKTOP-UBU709H:~/devops/exercise4$ docker stop mysql redis flask && docker rm mysql redis flask
+mysql
+redis
+flask
+mysql
+redis
+flask
+annieunix@DESKTOP-UBU709H:~/devops/exercise4$ docker network rm my-bridge-net
+my-bridge-net
+annieunix@DESKTOP-UBU709H:~/devops/exercise4$ 
