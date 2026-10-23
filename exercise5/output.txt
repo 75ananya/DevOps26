@@ -1,0 +1,111 @@
+annieunix@DESKTOP-UBU709H:~$ sudo apt-get update
+[sudo] password for annieunix:
+Get:1 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+Hit:2 http://archive.ubuntu.com/ubuntu jammy InRelease
+Get:3 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+Get:4 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+Get:5 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [3909 kB]
+Get:6 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1289 kB]
+Fetched 5582 kB in 5s (1101 kB/s)
+Reading package lists... Done
+annieunix@DESKTOP-UBU709H:~$ sudo apt-get install apparmor-utils
+Reading package lists... Done
+Building dependency tree... Done
+Reading state information... Done
+The following additional packages will be installed:
+  python3-apparmor python3-libapparmor
+Suggested packages:
+  vim-addon-manager
+The following NEW packages will be installed:
+  apparmor-utils python3-apparmor python3-libapparmor
+0 upgraded, 3 newly installed, 0 to remove and 22 not upgraded.
+Need to get 170 kB of archives.
+After this operation, 1186 kB of additional disk space will be used.
+Do you want to continue? [Y/n] Y
+Get:1 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 python3-libapparmor amd64 3.0.4-2ubuntu2.5 [29.5 kB]
+Get:2 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 python3-apparmor all 3.0.4-2ubuntu2.5 [81.1 kB]
+Get:3 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 apparmor-utils all 3.0.4-2ubuntu2.5 [59.5 kB]
+Fetched 170 kB in 2s (100 kB/s)
+Selecting previously unselected package python3-libapparmor.
+(Reading database ... 55710 files and directories currently installed.)
+Preparing to unpack .../python3-libapparmor_3.0.4-2ubuntu2.5_amd64.deb ...
+Unpacking python3-libapparmor (3.0.4-2ubuntu2.5) ...
+Selecting previously unselected package python3-apparmor.
+Preparing to unpack .../python3-apparmor_3.0.4-2ubuntu2.5_all.deb ...
+Unpacking python3-apparmor (3.0.4-2ubuntu2.5) ...
+Selecting previously unselected package apparmor-utils.
+Preparing to unpack .../apparmor-utils_3.0.4-2ubuntu2.5_all.deb ...
+Unpacking apparmor-utils (3.0.4-2ubuntu2.5) ...
+Setting up python3-libapparmor (3.0.4-2ubuntu2.5) ...
+Setting up python3-apparmor (3.0.4-2ubuntu2.5) ...
+Setting up apparmor-utils (3.0.4-2ubuntu2.5) ...
+Processing triggers for man-db (2.10.2-1) ...
+annieunix@DESKTOP-UBU709H:~$
+
+docker run --security-opt="apparmor=my-apparmor-profile" -p 5000:5000 flask-apparmor
+ * Serving Flask app 'app'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.17.0.2:5000
+Press CTRL+C to quit
+
+annieunix@DESKTOP-UBU709H:~/devops/exercise5$ cat /sys/module/apparmor/parameters/enabled
+N
+annieunix@DESKTOP-UBU709H:~/devops/exercise5$ docker build -t flask-apparmor .
+[+] Building 37.1s (10/10) FINISHED             docker:default
+ => [internal] load build definition from Dockerfile      0.1s
+ => => transferring dockerfile: 386B                      0.0s
+ => [internal] load metadata for docker.io/library/pytho  3.1s
+ => [auth] library/python:pull token for registry-1.dock  0.0s
+ => [internal] load .dockerignore                         0.1s
+ => => transferring context: 2B                           0.0s
+ => [1/4] FROM docker.io/library/python:3.8-slim@sha256  13.5s
+ => => resolve docker.io/library/python:3.8-slim@sha256:  0.1s
+ => => sha256:030d7bdc20a63e3d22192b292d 3.51MB / 3.51MB  0.7s
+ => => sha256:a3f1dfe736c5f959143f23d7 14.53MB / 14.53MB  3.4s
+ => => sha256:302e3ee498053a7b5332ac79 29.13MB / 29.13MB  4.8s
+ => => sha256:3971691a363796c39467aae4cdce6e 248B / 248B  0.8s
+ => => extracting sha256:302e3ee498053a7b5332ac79e8efebe  3.6s
+ => => extracting sha256:030d7bdc20a63e3d22192b292d006a6  2.8s
+ => => extracting sha256:a3f1dfe736c5f959143f23d75ab522a  1.6s
+ => => extracting sha256:3971691a363796c39467aae4cdce6ef  0.2s
+ => [internal] load build context                         0.3s
+ => => transferring context: 2.61kB                       0.0s
+ => [2/4] WORKDIR /app                                    1.2s
+ => [3/4] COPY . /app                                     0.2s
+ => [4/4] RUN pip install flask                          14.2s
+ => exporting to image                                    4.2s
+ => => exporting layers                                   2.4s
+ => => exporting manifest sha256:7e732b065c0d284f9136bcb  0.1s
+ => => exporting config sha256:768233f27a7dceac32c595c32  0.1s
+ => => exporting attestation manifest sha256:db7bd25f4ab  0.1s
+ => => exporting manifest list sha256:f58d516c37f74e0060  0.1s
+ => => naming to docker.io/library/flask-apparmor:latest  0.0s
+ => => unpacking to docker.io/library/flask-apparmor:lat  1.3s
+
+ annieunix@DESKTOP-UBU709H:~/devops/exercise5$ python3 apply_apparmor.py
+Container started: a1906f116386
+AppArmor profile applied: ['apparmor=my-apparmor-profile']
+annieunix@DESKTOP-UBU709H:~/devops/exercise5$ python3 test_restricted_actions.py
+Attempt to read /etc/passwd: Exit Code 0, Output: root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+sync:x:4:65534:sync:/bin:/bin/sync
+games:x:5:60:games:/usr/games:/usr/sbin/nologin
+man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
+lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
+mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
+news:x:9:9:news:/var/spool/news:/usr/sbin/nologin
+uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin
+proxy:x:13:13:proxy:/bin:/usr/sbin/nologin
+www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
+backup:x:34:34:backup:/var/backups:/usr/sbin/nologin
+list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin
+irc:x:39:39:ircd:/run/ircd:/usr/sbin/nologin
+_apt:x:42:65534::/nonexistent:/usr/sbin/nologin
+nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
+
+Attempt to execute /bin/bash: Exit Code 0, Output:
