@@ -1,0 +1,11 @@
+annieunix@DESKTOP-UBU709H:~/devops$ cd exercise7
+annieunix@DESKTOP-UBU709H:~/devops/exercise7$ docker start jenkins
+jenkins
+annieunix@DESKTOP-UBU709H:~/devops/exercise7$ docker ps | grep jenkins
+4c5e1e4d3c0c   jenkins/jenkins:lts                   "/usr/bin/tini -- /u…"   22 hours ago   Up 7 seconds            0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp, 0.0.0.0:50000->50000/tcp, [::]:50000->50000/tcp   jenkins
+annieunix@DESKTOP-UBU709H:~/devops/exercise7$ docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+a746957add2d4d019b367cf3121c6556
+annieunix@DESKTOP-UBU709H:~$ docker ps -a | grep jenkins | tee jenkins_status.txt
+4c5e1e4d3c0c   jenkins/jenkins:lts                   "/usr/bin/tini -- /u…"   23 hours ago   Up 5 minutes                0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp, 0.0.0.0:50000->50000/tcp, [::]:50000->50000/tcp                                           jenkins
+annieunix@DESKTOP-UBU709H:~/devops/exercise7$ docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword | tee initial_password.txt
+a746957add2d4d019b367cf3121c6556
